@@ -1417,26 +1417,30 @@ void fluid_2d_m(ComMod& com_mod, const int vmsFlag, const int eNoNw, const int e
       
       // dRm_a1/du_b1
       // derivative of x-component of momentum (weak form) residual with respect to the x-component of (the acceleration at the next time step)
-      lK(0,a,b) = lK(0,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a);
+      lK(0,a,b) = lK(0,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a)
+                              + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu(0,0,b);
 
       T2 = mu*rM(1,0) + tauC*rM(0,1) + esNx(0,a)*mu_g*esNx(1,b) - rho*tauM*uaNx(a)*updu(1,0,b);
       
       // dRm_a1/du_b2
       // derivative of x-component of momentum (weak form) residual with respect to the y-component of (the acceleration at the next time step)
-      lK(1,a,b) = lK(1,a,b) + wl*(T2);
+      lK(1,a,b) = lK(1,a,b) + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu(1,0,b);
 
       T2 = mu*rM(0,1) + tauC*rM(1,0) + esNx(1,a)*mu_g*esNx(0,b) - rho*tauM*uaNx(a)*updu(0,1,b);
       
       // dRm_a2/du_b1
       // derivative of y-component of momentum (weak form) residual with respect to the x-component of (the acceleration at the next time step)
-      lK(3,a,b) = lK(3,a,b) + wl*(T2);
+      lK(3,a,b) = lK(3,a,b) + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu(0,1,b);
 
       T2 = (mu + tauC)*rM(1,1) + esNx(1,a)*mu_g*esNx(1,b) - rho*tauM*uaNx(a)*updu(1,1,b);
       
       // dRm_a2/du_b2
       // derivative of y-component of momentum (weak form) residual with respect to the y-component of (the acceleration at the next time step)
       lK(4,a,b) = lK(4,a,b) + wl*(T2 + T1);
-      lK(4,a,b) = lK(4,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a);
+      lK(4,a,b) = lK(4,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a)
+                              + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu(1,1,b);
     }
   }
 
@@ -2202,45 +2206,63 @@ void fluid_3d_m(ComMod& com_mod, const int vmsFlag, const int eNoNw, const int e
       lK(0,a,b)  = lK(0,a,b)  + wl*(T2 + T1);
       // lK(0,a,b)  = lK(0,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a);
       lK(0,a,b)  = lK(0,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a)
-                              + (Res*DDir)*wl*Nw(b)*Nw(a);
+                              + (Res*DDir)*wl*Nw(b)*Nw(a)
+                              + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[0][0][b]
+                              + (Res*DDir)*wl*Nw(a)*updu[0][0][b];
 
       // dRm_a1/du_b2
       T2 = mu*rM[1][0] + tauC*rM[0][1] + esNx[0][a]*mu_g*esNx[1][b] - rho*tauM*uaNx[a]*updu[1][0][b];
-      lK(1,a,b)  = lK(1,a,b)  + wl*(T2);
+      lK(1,a,b)  = lK(1,a,b)  + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[1][0][b]
+                  + (Res*DDir)*wl*Nw(a)*updu[1][0][b];
 
       // dRm_a1/du_b3
       T2 = mu*rM[2][0] + tauC*rM[0][2] + esNx[0][a]*mu_g*esNx[2][b] - rho*tauM*uaNx[a]*updu[2][0][b];
-      lK(2,a,b)  = lK(2,a,b)  + wl*(T2);
+      lK(2,a,b)  = lK(2,a,b)  + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[2][0][b]
+                  + (Res*DDir)*wl*Nw(a)*updu[2][0][b];
 
       // dRm_a2/du_b1
       T2 = mu*rM[0][1] + tauC*rM[1][0] + esNx[1][a]*mu_g*esNx[0][b] - rho*tauM*uaNx[a]*updu[0][1][b];
-      lK(4,a,b) = lK(4,a,b)  + wl*(T2);
+      lK(4,a,b) = lK(4,a,b)  + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[0][1][b]
+                  + (Res*DDir)*wl*Nw(a)*updu[0][1][b];
 
       // dRm_a2/du_b2
       T2 = (mu + tauC)*rM[1][1] + esNx[1][a]*mu_g*esNx[1][b] - rho*tauM*uaNx[a]*updu[1][1][b];
       lK(5,a,b)  = lK(5,a,b)  + wl*(T2 + T1);
       // lK(5,a,b)  = lK(5,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a);
       lK(5,a,b)  = lK(5,a,b)  + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a)
-                              + (Res*DDir)*wl*Nw(b)*Nw(a);
+                              + (Res*DDir)*wl*Nw(b)*Nw(a)
+                              + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[1][1][b]
+                              + (Res*DDir)*wl*Nw(a)*updu[1][1][b];
 
       // dRm_a2/du_b3
       T2 = mu*rM[2][1] + tauC*rM[1][2] + esNx[1][a]*mu_g*esNx[2][b] - rho*tauM*uaNx[a]*updu[2][1][b];
-      lK(6,a,b)  = lK(6,a,b)  + wl*(T2);
+      lK(6,a,b)  = lK(6,a,b)  + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[2][1][b]
+                  + (Res*DDir)*wl*Nw(a)*updu[2][1][b];
 
       // dRm_a3/du_b1
       T2 = mu*rM[0][2] + tauC*rM[2][0] + esNx[2][a]*mu_g*esNx[0][b] - rho*tauM*uaNx[a]*updu[0][2][b];
-      lK(8,a,b)  = lK(8,a,b)  + wl*(T2);
+      lK(8,a,b)  = lK(8,a,b)  + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[0][2][b]
+                  + (Res*DDir)*wl*Nw(a)*updu[0][2][b];
 
       // dRm_a3/du_b2
       T2 = mu*rM[1][2] + tauC*rM[2][1] + esNx[2][a]*mu_g*esNx[1][b] - rho*tauM*uaNx[a]*updu[1][2][b];
-      lK(9,a,b) = lK(9,a,b) + wl*(T2);
+      lK(9,a,b) = lK(9,a,b) + wl*(T2)
+                  + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[1][2][b]
+                  + (Res*DDir)*wl*Nw(a)*updu[1][2][b];
 
       // dRm_a3/du_b3;
       T2 = (mu + tauC)*rM[2][2] + esNx[2][a]*mu_g*esNx[2][b] - rho*tauM*uaNx[a]*updu[2][2][b];
       lK(10,a,b) = lK(10,a,b) + wl*(T2 + T1);
       // lK(10,a,b) = lK(10,a,b) + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a);
       lK(10,a,b) = lK(10,a,b) + mu*K_inverse_darcy_permeability*wl*Nw(b)*Nw(a)
-                              + (Res*DDir)*wl*Nw(b)*Nw(a);
+                              + (Res*DDir)*wl*Nw(b)*Nw(a)
+                              + mu*K_inverse_darcy_permeability*wl*Nw(a)*updu[2][2][b]
+                              + (Res*DDir)*wl*Nw(a)*updu[2][2][b];
       //dmsg << "lK(10,a,b): " << lK(10,a,b);
     }
   }
