@@ -44,6 +44,19 @@
 
 namespace fluid {
 
+// Forward declarations  
+void fluid_unified_c(ComMod& com_mod, const int vmsFlag, const int eNoNw, const int eNoNq, const double w, 
+    const Array<double>& Kxi, const Vector<double>& Nw, const Vector<double>& Nq, const Array<double>& Nwx, 
+    const Array<double>& Nqx, const Array<double>& Nwxx, const Array<double>& al, const Array<double>& yl, 
+    const Array<double>& bfl, Array<double>& lR, Array3<double>& lK, double K_inverse_darcy_permeability, 
+    double DDir);
+
+void fluid_unified_m(ComMod& com_mod, const int vmsFlag, const int eNoNw, const int eNoNq, const double w,
+    const Array<double>& Kxi, const Vector<double>& Nw, const Vector<double>& Nq, const Array<double>& Nwx,
+    const Array<double>& Nqx, const Array<double>& Nwxx, const Array<double>& al, const Array<double>& yl,
+    const Array<double>& bfl, Array<double>& lR, Array3<double>& lK, double K_inverse_darcy_permeability, 
+    double DDir);
+
 void b_fluid(ComMod& com_mod, const int eNoN, const double w, const Vector<double>& N, const Vector<double>& y, 
     const double h, const Vector<double>& nV, Array<double>& lR, Array3<double>& lK)
 {
@@ -808,10 +821,10 @@ namespace fluid_assembly {
   ///
   /// Computes velocities, accelerations, pressure gradients, and second derivatives
   /// at the current integration point using element shape functions.
-  void interpolate_fields(const FluidData& data, const Vector<double>& Nw, const Vector<double>& Nq,
+  void interpolate_fields(const Vector<double>& Nw, const Vector<double>& Nq,
                          const Array<double>& Nwx, const Array<double>& Nqx, const Array<double>& Nwxx,
                          const Array<double>& al, const Array<double>& yl, const Array<double>& bfl,
-                         int eNoNw, int eNoNq, FluidData& result);
+                         int eNoNw, int eNoNq, FluidData& data, bool mvMsh);
                          
   /// @brief Compute strain rate tensor and shear rate
   ///
