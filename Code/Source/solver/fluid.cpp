@@ -804,32 +804,63 @@ namespace fluid_assembly {
     }
   };
   
-  // Helper functions for equation terms
+  /// @brief Interpolate field variables from nodes to integration point
+  ///
+  /// Computes velocities, accelerations, pressure gradients, and second derivatives
+  /// at the current integration point using element shape functions.
   void interpolate_fields(const FluidData& data, const Vector<double>& Nw, const Vector<double>& Nq,
                          const Array<double>& Nwx, const Array<double>& Nqx, const Array<double>& Nwxx,
                          const Array<double>& al, const Array<double>& yl, const Array<double>& bfl,
                          int eNoNw, int eNoNq, FluidData& result);
                          
+  /// @brief Compute strain rate tensor and shear rate
+  ///
+  /// Calculates the symmetric strain rate tensor (2*e_ij) and the scalar shear rate (gamma)
+  /// from the velocity gradient tensor, as required for viscosity models.
   void compute_strain_rate_tensor(FluidData& data);
   
+  /// @brief Compute viscosity and viscosity gradients
+  ///
+  /// Evaluates the viscosity model (Newtonian, Carreau-Yasuda, etc.) based on shear rate
+  /// and computes spatial gradients of viscosity for non-Newtonian flow stabilization.
   void compute_viscosity_terms(ComMod& com_mod, const dmnType& dmn, FluidData& data);
   
+  /// @brief Compute VMS stabilization parameters
+  ///
+  /// Calculates tau_M, tau_C, and other stabilization parameters for
+  /// Variational Multiscale method based on element metrics and flow properties.
   void compute_stabilization_parameters(const FluidData& data, const Array<double>& Kxi, 
                                        bool vmsFlag, FluidData& result);
                                        
+  /// @brief Compute VMS fine-scale velocity terms
+  ///
+  /// Calculates the fine-scale velocity (u') and related VMS terms for 
+  /// stabilized finite element formulation.
   void compute_vms_terms(const FluidData& data, const Array<double>& Nwx, const Array<double>& Nwxx,
                         int eNoNw, FluidData& result);
                         
+  /// @brief Assemble local residual contributions for continuity equation
+  ///
+  /// Computes the weak form residual for the incompressibility constraint (∇·u = 0).
   void compute_continuity_residual(const FluidData& data, const Vector<double>& Nq, 
                                   const Array<double>& Nqx, int eNoNq, double w, Array<double>& lR);
                                   
+  /// @brief Assemble local residual contributions for momentum equations
+  ///
+  /// Computes the weak form residual for the momentum conservation equations.
   void compute_momentum_residual(const FluidData& data, const Vector<double>& Nw, 
                                 const Array<double>& Nwx, int eNoNw, double wr, double w, Array<double>& lR);
                                 
+  /// @brief Assemble local tangent matrix contributions for continuity equation
+  ///
+  /// Computes the linearized tangent matrix terms for the continuity equation.
   void compute_continuity_tangent(const FluidData& data, const Vector<double>& Nw, const Vector<double>& Nq,
                                  const Array<double>& Nwx, const Array<double>& Nqx, 
                                  int eNoNw, int eNoNq, double wl, bool vmsFlag, Array3<double>& lK);
                                  
+  /// @brief Assemble local tangent matrix contributions for momentum equations
+  ///
+  /// Computes the linearized tangent matrix terms for the momentum equations.
   void compute_momentum_tangent(const FluidData& data, const Vector<double>& Nw, const Vector<double>& Nq,
                                const Array<double>& Nwx, const Array<double>& Nqx, const Array<double>& Nwxx,
                                int eNoNw, int eNoNq, double wl, double amd, bool vmsFlag, Array3<double>& lK);
@@ -1104,7 +1135,34 @@ namespace fluid_assembly {
 
 } // namespace fluid_assembly
 
-/// @brief Unified fluid assembly function for both 2D and 3D continuity equation.
+/// @brief Assemble continuity residual and tangent contributions for a Gauss integration point (unified 2D/3D).
+///
+///  This unified function handles both 2D and 3D cases, implementing the continuity equation
+///  from the incompressible Navier-Stokes equations with VMS stabilization.
+///
+///  Args:
+///    com_mod - ComMod object containing simulation parameters and domain information
+///    vmsFlag - Flag to indicate if VMS (Variational Multiscale) stabilization is enabled
+///    eNoNw - Number of nodes in element for velocity field
+///    eNoNq - Number of nodes in element for pressure field
+///    w - Weight of the quadrature point (includes Jacobian)
+///    Kxi - Summed gradients of parametric coordinates with respect to physical coordinates.
+///          G tensor in https://www.sciencedirect.com/science/article/pii/S0045782507003027#sec4 Eq. 65. Size: (nsd,nsd)
+///    Nw - Shape function values for velocity at integration point. Size: (eNoNw)
+///    Nq - Shape function values for pressure at integration point. Size: (eNoNq)
+///    Nwx - Gradient of shape functions for velocity. Size: (nsd,eNoNw)
+///    Nqx - Gradient of shape functions for pressure. Size: (nsd,eNoNq)
+///    Nwxx - Second order gradient of shape functions for velocity (for VMS). Size: (nsd*(nsd+1)/2,eNoNw)
+///    al - Acceleration array for current element nodes
+///    yl - Solution array (velocity, pressure) for current element nodes
+///    bfl - Body force array for current element nodes
+///    K_inverse_darcy_permeability - Inverse of the Darcy permeability for porous media
+///    DDir - Dirac Delta function for URIS (unfitted Robin-type interface surface)
+///    lR - Local residual array for current element
+///    lK - Local stiffness matrix for current element
+///  Modifies:
+///    lR(dof,eNoN) - Residual contributions for continuity equation
+///    lK(dof*dof,eNoN,eNoN) - Tangent matrix contributions for continuity equation
 //
 void fluid_unified_c(ComMod& com_mod, const int vmsFlag, const int eNoNw, const int eNoNq, const double w, 
     const Array<double>& Kxi, const Vector<double>& Nw, const Vector<double>& Nq, const Array<double>& Nwx, 
@@ -1243,7 +1301,41 @@ void fluid_unified_c(ComMod& com_mod, const int vmsFlag, const int eNoNw, const 
   }
 }
 
-/// @brief Unified fluid assembly function for both 2D and 3D momentum equation.
+/// @brief Assemble momentum residual and tangent contributions for a Gauss integration point (unified 2D/3D).
+///
+///  This unified function handles both 2D and 3D cases, implementing the momentum equations
+///  from the incompressible Navier-Stokes equations with VMS stabilization, including:
+///  - Inertial terms (acceleration and convection)
+///  - Viscous stress terms (with non-Newtonian viscosity models)
+///  - Pressure gradient terms
+///  - Body force terms
+///  - Darcy porous media terms
+///  - VMS stabilization terms
+///  - URIS interface terms
+///
+///  Args:
+///    com_mod - ComMod object containing simulation parameters and domain information
+///    vmsFlag - Flag to indicate if VMS (Variational Multiscale) stabilization is enabled
+///    eNoNw - Number of nodes in element for velocity field
+///    eNoNq - Number of nodes in element for pressure field
+///    w - Weight of the quadrature point (includes Jacobian)
+///    Kxi - Summed gradients of parametric coordinates with respect to physical coordinates.
+///          G tensor in https://www.sciencedirect.com/science/article/pii/S0045782507003027#sec4 Eq. 65. Size: (nsd,nsd)
+///    Nw - Shape function values for velocity at integration point. Size: (eNoNw)
+///    Nq - Shape function values for pressure at integration point. Size: (eNoNq)
+///    Nwx - Gradient of shape functions for velocity. Size: (nsd,eNoNw)
+///    Nqx - Gradient of shape functions for pressure. Size: (nsd,eNoNq)
+///    Nwxx - Second order gradient of shape functions for velocity (for VMS). Size: (nsd*(nsd+1)/2,eNoNw)
+///    al - Acceleration array for current element nodes
+///    yl - Solution array (velocity, pressure, mesh velocity if ALE) for current element nodes
+///    bfl - Body force array for current element nodes
+///    K_inverse_darcy_permeability - Inverse of the Darcy permeability for porous media
+///    DDir - Dirac Delta function for URIS (unfitted Robin-type interface surface)
+///    lR - Local residual array for current element
+///    lK - Local stiffness matrix for current element
+///  Modifies:
+///    lR(dof,eNoN) - Residual contributions for momentum equations
+///    lK(dof*dof,eNoN,eNoN) - Tangent matrix contributions for momentum equations
 //
 void fluid_unified_m(ComMod& com_mod, const int vmsFlag, const int eNoNw, const int eNoNq, const double w,
     const Array<double>& Kxi, const Vector<double>& Nw, const Vector<double>& Nq, const Array<double>& Nwx,
