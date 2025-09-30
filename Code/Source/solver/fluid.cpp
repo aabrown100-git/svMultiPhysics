@@ -886,8 +886,28 @@ void fluid_3d_c(ComMod& com_mod, const int vmsFlag, const int eNoNw, const int e
   fluid_unified_c(com_mod, vmsFlag, eNoNw, eNoNq, w, Kxi, Nw, Nq, Nwx, Nqx, Nwxx, al, yl, bfl, lR, lK, K_inverse_darcy_permeability, DDir);
 }
 
-/// @brief Legacy wrapper for 3D momentum.
+/// @brief Assemble momentum residual and tangent contributions for a Gauss integration point.
 ///
+///  Args:
+///    com_mod - ComMod object
+///    vmsFlag - Flag to indicate if VMS is enabled
+///    eNoNw - Number of nodes in element for velocity
+///    eNoNq - Number of nodes in element for pressure
+///    w - Weight of the quadrature point
+///    Kxi - Summed gradients of parametric coordinates with respect to physical coordinates.
+///          G tensor in https://www.sciencedirect.com/science/article/pii/S0045782507003027#sec4 Eq. 65. Size: (nsd,nsd)
+///    Nw - Shape function for velocity. Size: (eNoNw)
+///    Nq - Shape function for pressure. Size: (eNoNq)
+///    Nwx - Gradient of shape functions for velocity. Size: (nsd,eNoNw)
+///    Nqx - Gradient of shape functions for pressure. Size: (nsd,eNoNq)
+///    Nwxx - Second order gradient of shape functions for velocity. Size: (nsd,nsd,eNoNw)
+///    al - Acceleration array (for current element)
+///    yl - Velocity array (for current element)
+///    bfl - Body force array (for current element)
+///    K_inverse_darcy_permeability - Inverse of the Darcy permeability
+///    DDir - Dirac Delta function for URIS surface
+///    lR - Local residual array (for current element)
+///    lK - Local stiffness matrix (for current element)
 ///  Modifies:
 ///    lR(dof,eNoN)  - Residual
 ///    lK(dof*dof,eNoN,eNoN) - Stiffness matrix
