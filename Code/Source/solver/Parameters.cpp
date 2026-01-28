@@ -1779,6 +1779,12 @@ FiberReinforcementStressParameters::FiberReinforcementStressParameters()
   set_parameter("Ramp_function", false, !required, ramp_function);
   set_parameter("Temporal_values_file_path", "", !required, temporal_values_file_path);
   set_parameter("Value", 0.0, !required, value);
+
+  // Directional stress distribution parameters
+  // Default: all stress in fiber direction (eta_f=1.0, eta_s=0.0, eta_n=0.0)
+  set_parameter("Fraction_in_fiber_direction", 1.0, !required, eta_f);
+  set_parameter("Fraction_in_sheet_direction", 0.0, !required, eta_s);
+  set_parameter("Fraction_in_sheet_normal_direction", 0.0, !required, eta_n);
 }
 
 void FiberReinforcementStressParameters::set_values(tinyxml2::XMLElement* xml_elem)

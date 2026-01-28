@@ -1121,6 +1121,9 @@ class ECGLeadsParameters : public ParameterLists
 /// <Fiber_reinforcement_stress type="Unsteady" >
 ///   <Temporal_values_file_path> fib_stress.dat </Temporal_values_file_path>
 ///   <Ramp_function> true </Ramp_function>
+///   <Fraction_in_fiber_direction> 1.0 </Fraction_in_fiber_direction>
+///   <Fraction_in_sheet_direction> 0.0 </Fraction_in_sheet_direction>
+///   <Fraction_in_sheet_normal_direction> 0.0 </Fraction_in_sheet_normal_direction>
 /// </Fiber_reinforcement_stress>
 /// \endcode
 class FiberReinforcementStressParameters : public ParameterLists
@@ -1139,6 +1142,11 @@ class FiberReinforcementStressParameters : public ParameterLists
     Parameter<bool> ramp_function;
     Parameter<std::string> temporal_values_file_path;
     Parameter<double> value;
+
+    // Directional stress distribution parameters
+    Parameter<double> eta_f;  // Fraction of active stress in fiber direction
+    Parameter<double> eta_s;  // Fraction of active stress in sheet direction
+    Parameter<double> eta_n;  // Fraction of active stress in sheet-normal direction
 
     bool value_set = false;
 };

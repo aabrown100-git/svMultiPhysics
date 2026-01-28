@@ -323,10 +323,14 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
   double nd = static_cast<double>(nsd);
   double Kp = stM.Kpen;
 
-  // Fiber-reinforced stress
-  double Tfa = 0.0;
-  compute_fib_stress(com_mod, cep_mod, stM.Tf, Tfa);
-  double Tsa = Tfa*stM.Tf.eta_s;
+  // Fiber-reinforced stress - compute total active stress
+  double Ta = 0.0;
+  compute_fib_stress(com_mod, cep_mod, stM.Tf, Ta);
+
+  // Distribute total active stress among fiber directions
+  double Tfa = stM.Tf.eta_f * Ta;  // Fiber direction
+  double Tsa = stM.Tf.eta_s * Ta;  // Sheet direction
+  double Tna = stM.Tf.eta_n * Ta;  // Sheet-normal direction
 
   // Electromechanics coupling - active stress
   if (cep_mod.cem.aStress) {
@@ -538,8 +542,11 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
                       dyadic_product<nsd>(RmRm_20, RmRm_20));
       CC_bar = r2 * CC_bar;
 
-      // Add fiber reinforcement/active stress
-      S_bar += Tfa * (fl.col(0) * fl.col(0).transpose());
+      // Add fiber reinforcement/active stress in all three orthogonal directions
+      S_bar += Tfa * (fl.col(0) * fl.col(0).transpose());               // Fiber direction
+      S_bar += Tsa * (fl.col(1) * fl.col(1).transpose());               // Sheet direction
+      auto n_normal = cross_product<nsd>(fl.col(0), fl.col(1));         // Sheet-normal direction
+      S_bar += Tna * (n_normal * n_normal.transpose());                 // Sheet-normal direction
 
       // Compute and add isochoric stress and elasticity tensor
       auto [S_iso, CC_iso] = bar_to_iso<nsd>(S_bar, CC_bar, J2d, C, Ci);
@@ -620,6 +627,11 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       g2 = g2 + (0.5*ddc4s/stM.bss)*(rexp - 1.0);
       g2 = 4.0 * J4d * stM.ass * g2;
       CC_bar += g2*dyadic_product<nsd>(Hss, Hss);
+
+      // 4.S) Add sheet-normal active stress (Tna)
+      auto n_normal = cross_product<nsd>(fl.col(0), fl.col(1));
+      auto Hnn = n_normal * n_normal.transpose();
+      S_bar += Tna * Hnn;
 
 
       // Compute and add isochoric stress and elasticity tensor
@@ -721,6 +733,11 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       g2 = g2 + (0.5*ddc4s/stM.bss)*(rexp - 1.0);
       g2   = 4.0*stM.ass*g2;
       CC += g2*dyadic_product<nsd>(Hss, Hss);
+
+      // 4.S) Add sheet-normal active stress (Tna)
+      auto n_normal = cross_product<nsd>(fl.col(0), fl.col(1));
+      auto Hnn = n_normal * n_normal.transpose();
+      S += Tna * Hnn;
     } break;
 
     // Universal Material Subroutine - CANN Model

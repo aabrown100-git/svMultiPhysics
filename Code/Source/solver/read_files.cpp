@@ -2214,6 +2214,36 @@ void read_mat_model(Simulation* simulation, EquationParameters* eq_params, Domai
       lDmn.stM.Tf.gt.lrmp = fiber_params.ramp_function.value();
       read_fiber_temporal_values_file(fiber_params, lDmn);
     }
+
+    // Read directional stress distribution parameters
+    if (fiber_params.eta_f.defined()) {
+      lDmn.stM.Tf.eta_f = fiber_params.eta_f.value();
+    }
+    if (fiber_params.eta_s.defined()) {
+      lDmn.stM.Tf.eta_s = fiber_params.eta_s.value();
+    }
+    if (fiber_params.eta_n.defined()) {
+      lDmn.stM.Tf.eta_n = fiber_params.eta_n.value();
+    }
+
+    // Validate that eta_f + eta_s + eta_n = 1.0
+    double eta_sum = lDmn.stM.Tf.eta_f + lDmn.stM.Tf.eta_s + lDmn.stM.Tf.eta_n;
+    const double tol = 1.0e-10;
+    if (std::abs(eta_sum - 1.0) > tol) {
+      throw std::runtime_error("Fiber reinforcement stress directional fractions must sum to 1.0. " 
+        "Got: Fraction_in_fiber_direction=" + std::to_string(lDmn.stM.Tf.eta_f) + 
+        ", Fraction_in_sheet_direction=" + std::to_string(lDmn.stM.Tf.eta_s) + 
+        ", Fraction_in_sheet_normal_direction=" + std::to_string(lDmn.stM.Tf.eta_n) + 
+        ", sum=" + std::to_string(eta_sum));
+    }
+
+    // Validate that each eta is non-negative
+    if (lDmn.stM.Tf.eta_f < 0.0 || lDmn.stM.Tf.eta_s < 0.0 || lDmn.stM.Tf.eta_n < 0.0) {
+      throw std::runtime_error("Fiber reinforcement stress directional fractions must be non-negative. "
+        "Got: Fraction_in_fiber_direction=" + std::to_string(lDmn.stM.Tf.eta_f) + 
+        ", Fraction_in_sheet_direction=" + std::to_string(lDmn.stM.Tf.eta_s) + 
+        ", Fraction_in_sheet_normal_direction=" + std::to_string(lDmn.stM.Tf.eta_n));
+    }
   }
 
   // Check for shell model
