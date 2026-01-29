@@ -26,10 +26,11 @@ The fractions are specified in the solver.xml file as:
 ```xml
 <Fiber_reinforcement_stress type="Unsteady" >
    <Temporal_values_file_path> stress.dat </Temporal_values_file_path> 
-   <Ramp_function> false </Ramp_function>
-   <Fraction_in_fiber_direction> 0.70 </Fraction_in_fiber_direction>
-   <Fraction_in_sheet_direction> 0.20 </Fraction_in_sheet_direction>
-   <Fraction_in_sheet_normal_direction> 0.10 </Fraction_in_sheet_normal_direction>
+   <Directional_distribution>
+      <Fiber_direction> 0.7 </Fiber_direction>
+      <Sheet_direction> 0.2 </Sheet_direction>
+      <Sheet_normal_direction> 0.1 </Sheet_normal_direction>
+   </Directional_distribution>
 </Fiber_reinforcement_stress>
 ```
 

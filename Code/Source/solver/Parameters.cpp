@@ -1759,6 +1759,50 @@ void DomainParameters::set_values(tinyxml2::XMLElement* domain_elem, bool from_e
 }
 
 //////////////////////////////////////////////////////////
+//        DirectionalDistributionParameters            //
+//////////////////////////////////////////////////////////
+
+/// @brief Define the XML element name for directional distribution parameters.
+const std::string DirectionalDistributionParameters::xml_element_name_ = "Directional_distribution";
+
+DirectionalDistributionParameters::DirectionalDistributionParameters()
+{
+  bool required = false;
+  
+  // Default: all stress in fiber direction
+  set_parameter("Fiber_direction", 1.0, required, fiber_direction);
+  set_parameter("Sheet_direction", 0.0, required, sheet_direction);
+  set_parameter("Sheet_normal_direction", 0.0, required, sheet_normal_direction);
+}
+
+void DirectionalDistributionParameters::set_values(tinyxml2::XMLElement* xml_elem)
+{
+  using namespace tinyxml2;
+  std::string error_msg = "Unknown " + xml_element_name_ + " XML element '";
+
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+
+  std::function<void(const std::string&, const std::string&)> ftpr =
+      std::bind(&DirectionalDistributionParameters::set_parameter_value, *this, _1, _2);
+
+  xml_util_set_parameters(ftpr, xml_elem, error_msg);
+
+  value_set = true;
+}
+
+void DirectionalDistributionParameters::print_parameters()
+{
+  if (!value_set) {
+    return;
+  }
+  std::cout << "  Directional Distribution:" << std::endl;
+  std::cout << "    Fiber_direction: " << fiber_direction.value() << std::endl;
+  std::cout << "    Sheet_direction: " << sheet_direction.value() << std::endl;
+  std::cout << "    Sheet_normal_direction: " << sheet_normal_direction.value() << std::endl;
+}
+
+//////////////////////////////////////////////////////////
 //            FiberReinforcementStressParameters        //
 //////////////////////////////////////////////////////////
 
@@ -1779,12 +1823,6 @@ FiberReinforcementStressParameters::FiberReinforcementStressParameters()
   set_parameter("Ramp_function", false, !required, ramp_function);
   set_parameter("Temporal_values_file_path", "", !required, temporal_values_file_path);
   set_parameter("Value", 0.0, !required, value);
-
-  // Directional stress distribution parameters
-  // Default: all stress in fiber direction (eta_f=1.0, eta_s=0.0, eta_n=0.0)
-  set_parameter("Fraction_in_fiber_direction", 1.0, !required, eta_f);
-  set_parameter("Fraction_in_sheet_direction", 0.0, !required, eta_s);
-  set_parameter("Fraction_in_sheet_normal_direction", 0.0, !required, eta_n);
 }
 
 void FiberReinforcementStressParameters::set_values(tinyxml2::XMLElement* xml_elem)
@@ -1792,22 +1830,34 @@ void FiberReinforcementStressParameters::set_values(tinyxml2::XMLElement* xml_el
   using namespace tinyxml2;
   std::string error_msg = "Unknown " + xml_element_name_ + " XML element '";
 
-  // Get the 'type' from the <LS type=TYPE> element.
+  // Get the 'type' from the element attribute.
   const char* stype;
   auto result = xml_elem->QueryStringAttribute("type", &stype);
   if (stype == nullptr) {
-    throw std::runtime_error("No TYPE given in the XML <Stimulus=TYPE> element.");
+    throw std::runtime_error("No TYPE given in the XML <Fiber_reinforcement_stress type=TYPE> element.");
   }
   type.set(std::string(stype));
   auto item = xml_elem->FirstChildElement();
-
-  using std::placeholders::_1;
-  using std::placeholders::_2;
-
-  std::function<void(const std::string&, const std::string&)> ftpr =
-      std::bind( &FiberReinforcementStressParameters::set_parameter_value, *this, _1, _2);
-
-  xml_util_set_parameters(ftpr, xml_elem, error_msg);
+  
+  while (item != nullptr) {
+    std::string name = item->Value();
+    
+    if (name == DirectionalDistributionParameters::xml_element_name_) {
+      directional_distribution.set_values(item);
+      
+    } else if (item->GetText() != nullptr) {
+      auto value = item->GetText();
+      try {
+        set_parameter_value(name, value);
+      } catch (const std::bad_function_call& exception) {
+        throw std::runtime_error(error_msg + name + "'.");
+      }
+    } else {
+      throw std::runtime_error(error_msg + name + "'.");
+    }
+    
+    item = item->NextSiblingElement();
+  }
 
   value_set = true;
 }
@@ -1827,6 +1877,9 @@ void FiberReinforcementStressParameters::print_parameters()
   for (auto& [ key, value ] : params_name_value) {
     std::cout << key << ": " << value << std::endl;
   }
+  
+  // Print directional distribution if defined
+  directional_distribution.print_parameters();
 }
 
 //////////////////////////////////////////////////////////

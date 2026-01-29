@@ -1113,6 +1113,34 @@ class ECGLeadsParameters : public ParameterLists
     bool value_set = false;
 };
 
+/// @brief The DirectionalDistributionParameters class stores directional
+/// distribution parameters for active stress.
+///
+/// \code {.xml}
+/// <Directional_distribution>
+///   <Fiber_direction> 1.0 </Fiber_direction>
+///   <Sheet_direction> 0.0 </Sheet_direction>
+///   <Sheet_normal_direction> 0.0 </Sheet_normal_direction>
+/// </Directional_distribution>
+/// \endcode
+class DirectionalDistributionParameters : public ParameterLists
+{
+  public:
+    DirectionalDistributionParameters();
+
+    static const std::string xml_element_name_;
+
+    bool defined() const { return value_set; };
+    void print_parameters();
+    void set_values(tinyxml2::XMLElement* xml_elem);
+
+    Parameter<double> fiber_direction;
+    Parameter<double> sheet_direction;
+    Parameter<double> sheet_normal_direction;
+
+    bool value_set = false;
+};
+
 /// @brief The FiberReinforcementStressParameters class stores fiber
 /// reinforcement stress parameters for the 'Fiber_reinforcement_stress` 
 /// XML element.
@@ -1121,9 +1149,11 @@ class ECGLeadsParameters : public ParameterLists
 /// <Fiber_reinforcement_stress type="Unsteady" >
 ///   <Temporal_values_file_path> fib_stress.dat </Temporal_values_file_path>
 ///   <Ramp_function> true </Ramp_function>
-///   <Fraction_in_fiber_direction> 1.0 </Fraction_in_fiber_direction>
-///   <Fraction_in_sheet_direction> 0.0 </Fraction_in_sheet_direction>
-///   <Fraction_in_sheet_normal_direction> 0.0 </Fraction_in_sheet_normal_direction>
+///   <Directional_distribution>
+///     <Fiber_direction> 0.7 </Fiber_direction>
+///     <Sheet_direction> 0.2 </Sheet_direction>
+///     <Sheet_normal_direction> 0.1 </Sheet_normal_direction>
+///   </Directional_distribution>
 /// </Fiber_reinforcement_stress>
 /// \endcode
 class FiberReinforcementStressParameters : public ParameterLists
@@ -1144,9 +1174,7 @@ class FiberReinforcementStressParameters : public ParameterLists
     Parameter<double> value;
 
     // Directional stress distribution parameters
-    Parameter<double> eta_f;  // Fraction of active stress in fiber direction
-    Parameter<double> eta_s;  // Fraction of active stress in sheet direction
-    Parameter<double> eta_n;  // Fraction of active stress in sheet-normal direction
+    DirectionalDistributionParameters directional_distribution;
 
     bool value_set = false;
 };
