@@ -1791,6 +1791,64 @@ void DirectionalDistributionParameters::set_values(tinyxml2::XMLElement* xml_ele
   value_set = true;
 }
 
+void DirectionalDistributionParameters::validate() const
+{
+  if (!value_set) {
+    return;  // No validation needed if not set (will use defaults)
+  }
+  
+  // Check how many parameters are defined
+  bool fiber_defined = fiber_direction.defined();
+  bool sheet_defined = sheet_direction.defined();
+  bool normal_defined = sheet_normal_direction.defined();
+  
+  int num_defined = (fiber_defined ? 1 : 0) + (sheet_defined ? 1 : 0) + (normal_defined ? 1 : 0);
+  
+  // Empty block is invalid - if block exists, must specify all three
+  if (num_defined == 0) {
+    throw std::runtime_error("Directional_distribution block is empty. "
+      "Either remove the block entirely (to use defaults: fiber=1.0, sheet=0.0, normal=0.0) "
+      "or specify all three directions: Fiber_direction, Sheet_direction, Sheet_normal_direction.");
+  }
+  
+  // Partial specification is invalid
+  if (num_defined < 3) {
+    std::string msg = "Directional_distribution requires all three directions to be specified. Found: ";
+    if (fiber_defined) msg += "Fiber_direction ";
+    if (sheet_defined) msg += "Sheet_direction ";
+    if (normal_defined) msg += "Sheet_normal_direction ";
+    msg += "\nMissing: ";
+    if (!fiber_defined) msg += "Fiber_direction ";
+    if (!sheet_defined) msg += "Sheet_direction ";
+    if (!normal_defined) msg += "Sheet_normal_direction ";
+    throw std::runtime_error(msg);
+  }
+  
+  // All three are specified, validate their values
+  double eta_f = fiber_direction.value();
+  double eta_s = sheet_direction.value();
+  double eta_n = sheet_normal_direction.value();
+  
+  // Validate that eta_f + eta_s + eta_n = 1.0
+  double eta_sum = eta_f + eta_s + eta_n;
+  const double tol = 1.0e-10;
+  if (std::abs(eta_sum - 1.0) > tol) {
+    throw std::runtime_error("Directional distribution fractions must sum to 1.0. " 
+      "Got: Fiber_direction=" + std::to_string(eta_f) + 
+      ", Sheet_direction=" + std::to_string(eta_s) + 
+      ", Sheet_normal_direction=" + std::to_string(eta_n) + 
+      ", sum=" + std::to_string(eta_sum));
+  }
+  
+  // Validate that each eta is non-negative
+  if (eta_f < 0.0 || eta_s < 0.0 || eta_n < 0.0) {
+    throw std::runtime_error("Directional distribution fractions must be non-negative. "
+      "Got: Fiber_direction=" + std::to_string(eta_f) + 
+      ", Sheet_direction=" + std::to_string(eta_s) + 
+      ", Sheet_normal_direction=" + std::to_string(eta_n));
+  }
+}
+
 void DirectionalDistributionParameters::print_parameters()
 {
   if (!value_set) {

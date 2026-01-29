@@ -1133,6 +1133,7 @@ class DirectionalDistributionParameters : public ParameterLists
     bool defined() const { return value_set; };
     void print_parameters();
     void set_values(tinyxml2::XMLElement* xml_elem);
+    void validate() const;  // Validate directional fractions
 
     Parameter<double> fiber_direction;
     Parameter<double> sheet_direction;
