@@ -1802,7 +1802,7 @@ void DirectionalDistributionParameters::validate() const
   bool sheet_defined = sheet_direction.defined();
   bool normal_defined = sheet_normal_direction.defined();
   
-  int num_defined = (fiber_defined ? 1 : 0) + (sheet_defined ? 1 : 0) + (normal_defined ? 1 : 0);
+  int num_defined = fiber_defined + sheet_defined + normal_defined;
   
   // Empty block is invalid - if block exists, must specify all three
   if (num_defined == 0) {
