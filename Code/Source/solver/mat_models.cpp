@@ -298,7 +298,8 @@ Eigen::Matrix<double, nsd, 1> compute_sheet_normal(const Eigen::Matrix<double, n
     auto n_normal = cross_product<nsd>(fl.col(0), fl.col(1));
     double norm_n = sqrt(n_normal.dot(n_normal));
     
-    if (norm_n < 1.0e-10) {
+    static constexpr double sheet_normal_tol = 1.0e-10; 
+    if (norm_n < sheet_normal_tol) {
       throw std::runtime_error("Fiber and sheet directions are parallel; sheet-normal direction is undefined.");
     }
 
