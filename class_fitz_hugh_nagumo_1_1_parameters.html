@@ -12,7 +12,6 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script type="text/javascript">
 window.MathJax = {
   options: {
@@ -20,11 +19,19 @@ window.MathJax = {
     processHtmlClass: 'tex2jax_process'
   },
   loader: {
-    load: ['[tex]/ams']
+    load: ['[tex]/ams','[tex]/physics']
   },
   tex: {
-    macros: {},
-    packages: ['base','configmacros','ams']
+    macros: {    fiberdirection: "{\\mathbf{f}}",
+    sheetdirection: "{\\mathbf{s}}",
+    sheetnormaldirection: "{\\mathbf{n}}",
+    calcium: "{[\\text{Ca}^{2+}]}",
+    Tact: "{T_\\text{act}}",
+    fiberstretch: "{\\lambda}",
+    fiberstretchrate: "{\\dot{\\lambda}}",
+    astressstate: "{\\mathbf{s}}",
+    },
+    packages: ['base','configmacros','newcommand','ams','physics']
   }
 };
 </script>
@@ -100,11 +107,11 @@ $(function() {
 <p>Model parameters class.  
  <a href="class_fitz_hugh_nagumo_1_1_parameters.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="ionic__fitzhugh__nagumo_8h_source.html">ionic_fitzhugh_nagumo.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_ionic_model_fitz_hugh_nagumo_8h_source.html">IonicModelFitzHughNagumo.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for FitzHughNagumo::Parameters:</div>
 <div class="dyncontent">
-<div class="center"><!-- SVG 0 --></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="class_fitz_hugh_nagumo_1_1_parameters__inherit__graph.svg" width="227" height="183"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
@@ -131,6 +138,9 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:a39f7cdcc9fab30b70e92358a243bcb60 inherit pub_methods_class_ionic_model_parameters" id="r_a39f7cdcc9fab30b70e92358a243bcb60"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ionic_model_parameters.html#a39f7cdcc9fab30b70e92358a243bcb60">get_scalar</a> (const std::string &amp;label) const</td></tr>
 <tr class="memdesc:a39f7cdcc9fab30b70e92358a243bcb60 inherit pub_methods_class_ionic_model_parameters"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of a scalar parameter by label.  <br /></td></tr>
 <tr class="separator:a39f7cdcc9fab30b70e92358a243bcb60 inherit pub_methods_class_ionic_model_parameters"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3acfeb2c235894ba89702752b23f5ea0 inherit pub_methods_class_ionic_model_parameters" id="r_a3acfeb2c235894ba89702752b23f5ea0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ionic_model_parameters.html#a3acfeb2c235894ba89702752b23f5ea0">set_scalar</a> (const std::string &amp;label, double value)</td></tr>
+<tr class="memdesc:a3acfeb2c235894ba89702752b23f5ea0 inherit pub_methods_class_ionic_model_parameters"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the value of a scalar parameter by label.  <br /></td></tr>
+<tr class="separator:a3acfeb2c235894ba89702752b23f5ea0 inherit pub_methods_class_ionic_model_parameters"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bf3dd213f4179acfd7f6f4566f6771b inherit pub_methods_class_ionic_model_parameters" id="r_a3bf3dd213f4179acfd7f6f4566f6771b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_vector.html">Vector</a>&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ionic_model_parameters.html#a3bf3dd213f4179acfd7f6f4566f6771b">get_vector</a> (const std::string &amp;label) const</td></tr>
 <tr class="memdesc:a3bf3dd213f4179acfd7f6f4566f6771b inherit pub_methods_class_ionic_model_parameters"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of a vector parameter by label.  <br /></td></tr>
 <tr class="separator:a3bf3dd213f4179acfd7f6f4566f6771b inherit pub_methods_class_ionic_model_parameters"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -210,7 +220,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>xml_element_na
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Model parameters class. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>solver/<a class="el" href="ionic__fitzhugh__nagumo_8h_source.html">ionic_fitzhugh_nagumo.h</a></li>
+<li>solver/<a class="el" href="_ionic_model_fitz_hugh_nagumo_8h_source.html">IonicModelFitzHughNagumo.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

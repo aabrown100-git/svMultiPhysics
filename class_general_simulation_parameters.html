@@ -12,7 +12,6 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script type="text/javascript">
 window.MathJax = {
   options: {
@@ -20,11 +19,19 @@ window.MathJax = {
     processHtmlClass: 'tex2jax_process'
   },
   loader: {
-    load: ['[tex]/ams']
+    load: ['[tex]/ams','[tex]/physics']
   },
   tex: {
-    macros: {},
-    packages: ['base','configmacros','ams']
+    macros: {    fiberdirection: "{\\mathbf{f}}",
+    sheetdirection: "{\\mathbf{s}}",
+    sheetnormaldirection: "{\\mathbf{n}}",
+    calcium: "{[\\text{Ca}^{2+}]}",
+    Tact: "{T_\\text{act}}",
+    fiberstretch: "{\\lambda}",
+    fiberstretchrate: "{\\dot{\\lambda}}",
+    astressstate: "{\\mathbf{s}}",
+    },
+    packages: ['base','configmacros','newcommand','ams','physics']
   }
 };
 </script>
@@ -102,7 +109,7 @@ $(function() {
 <div class="dynheader">
 Inheritance diagram for GeneralSimulationParameters:</div>
 <div class="dyncontent">
-<div class="center"><!-- SVG 0 --></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="class_general_simulation_parameters__inherit__graph.svg" width="228" height="110"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -180,6 +187,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>xml_element_na
 <tr class="memitem:a053300c5e1be699899f1765c9b936d54" id="r_a053300c5e1be699899f1765c9b936d54"><td class="memItemLeft" align="right" valign="top"><a id="a053300c5e1be699899f1765c9b936d54" name="a053300c5e1be699899f1765c9b936d54"></a>
 <a class="el" href="class_parameter.html">Parameter</a>&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>save_averaged_results</b></td></tr>
 <tr class="separator:a053300c5e1be699899f1765c9b936d54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4cfd3d04556c452c352ba83f2650a5c" id="r_ac4cfd3d04556c452c352ba83f2650a5c"><td class="memItemLeft" align="right" valign="top"><a id="ac4cfd3d04556c452c352ba83f2650a5c" name="ac4cfd3d04556c452c352ba83f2650a5c"></a>
+<a class="el" href="class_parameter.html">Parameter</a>&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>save_domain_id_in_every_file</b></td></tr>
+<tr class="separator:ac4cfd3d04556c452c352ba83f2650a5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d0ba80dbc0050e68aef235fa4f07e40" id="r_a8d0ba80dbc0050e68aef235fa4f07e40"><td class="memItemLeft" align="right" valign="top"><a id="a8d0ba80dbc0050e68aef235fa4f07e40" name="a8d0ba80dbc0050e68aef235fa4f07e40"></a>
 <a class="el" href="class_parameter.html">Parameter</a>&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>save_results_to_vtk_format</b></td></tr>
 <tr class="separator:a8d0ba80dbc0050e68aef235fa4f07e40"><td class="memSeparator" colspan="2">&#160;</td></tr>
